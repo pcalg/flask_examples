@@ -17,6 +17,7 @@
     <script>
 
         async function getData() {
+            // Retrieve the json data from our API (which is the get_data function in chart_example.py).
             let resp = await fetch("{{url_for('get_data')}}").catch((error) => {
                 console.log("Error", error);
             });
@@ -32,11 +33,8 @@
         async function createChart() {
             let table = await getData();
 
-            // Global parameters:
-            // do not resize the chart canvas when its container does (keep at 600x400px)
             Chart.defaults.global.responsive = false;
 
-            // define the chart data
             let chartData = {
                 labels: table.tenors,
                 datasets: [{
@@ -63,10 +61,8 @@
                 }]
             };
 
-            // get chart canvas
             let ctx = document.getElementById("testChart").getContext("2d");
 
-            // create the chart using the chart canvas
             let exampleChart = new Chart(ctx, {
                 type: 'line',
                 data: chartData
