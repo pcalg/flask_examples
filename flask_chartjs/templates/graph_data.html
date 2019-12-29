@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important {
+            color: #336699;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1>Index</h1>
+    <p class="important">
+        Welcome to the chart page.</p>
+    <p><a href={{url_for('get_data')}}>API call</a></p>
+    <canvas id="testChart" width="600" height="400"></canvas>
+    <script>
+
+        async function getData() {
+            let resp = await fetch("{{url_for('get_data')}}").catch((error) => {
+                console.log("Error", error);
+            });
+
+            let all_values = await resp.json();
+
+            let tenors = all_values.map(element => element.tenor);
+            let values = all_values.map(element => element.value);
+
+            return {tenors, values};
+        }
+
+        async function createChart() {
+            let table = await getData();
+
+            // Global parameters:
+            // do not resize the chart canvas when its container does (keep at 600x400px)
+            Chart.defaults.global.responsive = false;
+
+            // define the chart data
+            let chartData = {
+                labels: table.tenors,
+                datasets: [{
+                    label: 'Example chart',
+                    fill: true,
+                    lineTension: 0.1,
+                    backgroundColor: "rgba(40,84,192,0.4)",
+                    borderColor: "rgb(18,82,192)",
+                    borderCapStyle: 'butt',
+                    borderDash: [],
+                    borderDashOffset: 0.0,
+                    borderJoinStyle: 'miter',
+                    pointBorderColor: "rgb(192,78,77)",
+                    pointBackgroundColor: "#fff",
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgb(18,82,192)",
+                    pointHoverBorderColor: "rgba(220,220,220,1)",
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 1,
+                    pointHitRadius: 10,
+                    data: table.values,
+                    spanGaps: false
+                }]
+            };
+
+            // get chart canvas
+            let ctx = document.getElementById("testChart").getContext("2d");
+
+            // create the chart using the chart canvas
+            let exampleChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData
+            });
+        }
+
+        createChart();
+
+    </script>
+{% endblock %}
